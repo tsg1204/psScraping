@@ -158,20 +158,23 @@ app.post("/articles/:id", function(req, res) {
 });
 
 // Delete One from the DB
-app.get("/articles/:id", function(req, res) {
-    // Use the article id to find and update it's note
-    Article.findOneAndRemove({ "_id": req.params.id }, { "note": doc._id })
-    // Execute the above query
-    .exec(function(err, doc) {
-      // Log any errors
-      if (err) {
-        console.log(err);
-      }
-      else {
-        // Or send the document to the browser
-        res.send(doc);
-      }
+app.get("/delete/:id", function(req, res) {
+  Article.findOne({ "_id": req.params.id },
+    function(err, oldNote){
+      oldNote.remove();
     });
+
+  // now, execute our query
+  .exec(function(error, doc) {
+    // Log any errors
+    if (error) {
+      console.log(error);
+    }
+    // Otherwise, send the doc to the browser as a json object
+    else {
+      res.json(doc);
+    }
+  });
 });
 
 // Listen on port 3000

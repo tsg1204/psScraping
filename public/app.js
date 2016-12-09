@@ -76,24 +76,18 @@ $(document).on("click", "#deletenote", function() {
   // Grab the id associated with the article from the submit button
   var thisId = $(this).attr("data-id");
 
-  // Run a POST request to change the note, using what's entered in the inputs
   $.ajax({
-    method: "POST",
-    url: "/articles/" + thisId,
-    data: {
-      // Value taken from title input
-      title: $("#titleinput").val(""),
-      // Value taken from note textarea
-      body: $("#bodyinput").val("")
-
+    method: "GET",
+    url: "/delete/" + thisId,
+    // On successful call
+    success: function(response) {
+      // // Remove the p-tag from the DOM
+      // thisId.remove();
+      // Clear the note and body inputs
+      $("#titleinput").val("");
+      $("#bodyinput").val("");
     }
   })
-    // With that done
-    .done(function(data) {
-      // Log the response
-      console.log(data);
-
-    });
 
 });
 
