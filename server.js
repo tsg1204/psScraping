@@ -32,9 +32,10 @@ app.use(bodyParser.urlencoded({
 app.use(express.static("public"));
 
 var databaseURi = "mongodb://localhost/scraper_db";
-
+var herokuURi = "mongodb://tsg1204@gmail.com:tatiana2016@ds063406.mlab.com:63406/heroku_ghnj5r05";
+//mongodb:ubiquitousguy:password7@ds143737.mlab.com:43737/mongoose-scraper
 if(process.env.MONGODB_URI) {
-  mongoose.connect(process.env.MONGODB_URI);
+  mongoose.connect(herokuURi);
 } else {
   mongoose.connect(databaseURi);
 }
