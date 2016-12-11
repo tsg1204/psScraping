@@ -35,9 +35,9 @@ var databaseURi = "mongodb://localhost/scraper_db";
 //var herokuURi = "mongodb://tsg1204@gmail.com:tatiana2016@ds063406.mlab.com:63406/heroku_ghnj5r05";
 
 if(process.env.MONGODB_URI) {
-  mongoose.connect(herokuURi);
+  mongoose.connect(process.env.MONGODB_URI);
 } else {
-  mongoose.connect(MONGODB_URI);
+  mongoose.connect(databaseURi);
 }
 
 var db = mongoose.connection;
