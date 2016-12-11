@@ -22,17 +22,6 @@ var ArticleSchema = new Schema({
   }
 });
 
-ArticleSchema.pre('remove', function(next) {
-    this.model('Note').update(
-        {_id: {$in: this.title}}, 
-        {$pull: {title: this._id}}, 
-        {multi: true},
-        next
-    );
-      Note.remove({title: this.title, body: this.body }).exec();
-      Article.remove({note : this._id}).exec();
-      next();
-  });
 // Create the Article model with the ArticleSchema
 var Article = mongoose.model("Article", ArticleSchema);
 

@@ -32,7 +32,7 @@ app.use(bodyParser.urlencoded({
 app.use(express.static("public"));
 
 // Database configuration with mongoose
-mongoose.connect("mongodb://localhost/pluralsight");
+mongoose.connect("mongodb://localhost/scraper_db");
 var db = mongoose.connection;
 
 // Show any mongoose errors
@@ -46,6 +46,7 @@ db.once("open", function() {
 });
 
 
+
 // Routes
 // ======
 
@@ -57,18 +58,19 @@ app.get("/", function(req, res) {
 // A GET request to scrape the echojs website
 app.get("/scrape", function(req, res) {
   // First, we grab the body of the html with request
-  request("https://www.pluralsight.com/browse/software-development/web-development", function(error, response, html) {
+  request("https://www.nhl.com/", function(error, response, html) {
     // Then, we load that into cheerio and save it to $ for a shorthand selector
     var $ = cheerio.load(html);
-    // Now, we grab every h2 within an article tag, and do the following:
-    $(".search-results__info").each(function(i, element) {
+
+    // Now, we grab every h4 within an article tag, and do the following:
+    $("h4.headline-link").each(function(i, element) {
 
       // Save an empty result object
       var result = {};
 
-      // Add the text and href of every link, and save them as properties of the result object
-      result.title = $(this).children(".search-result__title").text();
-      result.link = $(this).children(".search-result__title").attr("href");
+      // Save the text of the h4-tag as "title"
+      result.title = $(this).text();
+      result.link = "https://www.nhl.com/" + $(this).parent().attr("href");;
 
       // Using our Article model, create a new entry
       // This effectively passes the result object to the entry (and the title and link)
@@ -157,24 +159,31 @@ app.post("/articles/:id", function(req, res) {
   });
 });
 
-// Delete One from the DB
-app.get("/delete/:id", function(req, res) {
-  Article.findOne({ "_id": req.params.id },
-    function(err, oldNote){
-      oldNote.remove();
-    });
+//delete the note from both collections (article and notes)
+app.post('/deletenote/:id', function(req, res){
+      Article.find({'_id': req.params.id}, 'note', function(err,doc){
+      // .exec(function(err, doc){
+        if (err){
+          console.log(err);
+        }
+        //deletes the note from the Notes Collection
+          Note.find({'_id' : doc[0].note}).remove().exec(function(err,doc){
+            if (err){
+              console.log(err);
+            }
 
-  // now, execute our query
-  .exec(function(error, doc) {
-    // Log any errors
-    if (error) {
-      console.log(error);
-    }
-    // Otherwise, send the doc to the browser as a json object
-    else {
-      res.json(doc);
-    }
-  });
+          });
+
+      });
+      //deletes the note reference in the article document
+      Article.findOneAndUpdate({'_id': req.params.id}, {$unset : {'note':1}})
+      .exec(function(err, doc){
+        if (err){
+          console.log(err);
+        } else {
+          res.send(doc);
+        }
+      });
 });
 
 // Listen on port 3000
